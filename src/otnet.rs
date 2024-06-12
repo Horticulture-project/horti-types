@@ -45,6 +45,11 @@ pub struct OtNetwork {
     network_name: String,
     updated: Option<i64>,
 }
+#[derive(PartialEq, Hash, Eq, Clone, Debug, Serialize, Deserialize)]
+struct Tlvarray {
+    #[serde(with = "Base64Standard")]
+    tlv: Vec<u8>,
+}
 
 #[derive(PartialEq, Hash, Eq, Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "kind")]
@@ -53,17 +58,12 @@ pub struct OtNetConfig {
     timestamp: Option<DateTime<Utc>>,
     #[serde(rename = "networkName")]
     networkname: String, // The Thread network name.
-    #[serde(with = "Base64Standard")]
-    tlv: Vec<u8>,
+    tlv: Option<Tlvarray>,
 }
 
 impl OtNetConfig {
-    pub fn tlv(&self) -> Vec<u8> {
-        self.tlv.clone()
-    }
-
     pub fn has_tlv(&self) -> bool {
-        self.tlv.len() > 8
+        self.tlv.is_some()
     }
     pub fn has_netname(&self) -> bool {
         !self.networkname.is_empty()
@@ -72,7 +72,7 @@ impl OtNetConfig {
         OtNetConfig {
             timestamp: None,
             networkname: "".to_string(),
-            tlv: vec![],
+            tlv: None,
         }
     }
     pub fn new_net(&self) -> (Vec<u8>, u16, String, u64, Vec<u8>, u32) {
@@ -93,7 +93,7 @@ impl OtNetConfig {
         self
     }
     pub fn set_tlv(&mut self, tlvs: Vec<u8>) {
-        self.tlv = tlvs;
+        self.tlv = Some(Tlvarray { tlv: tlvs });
     }
 
     pub fn get_timestamp(&self) -> SystemTime {
@@ -111,7 +111,11 @@ impl OtNetConfig {
         self.networkname.clone()
     }
     pub fn get_tlv(&self) -> Vec<u8> {
-        self.tlv.clone()
+        if let Some(tlv) = &self.tlv {
+            tlv.tlv.clone()
+        } else {
+            vec![]
+        }
     }
 }
 
