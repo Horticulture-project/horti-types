@@ -115,8 +115,8 @@ impl OtNetConfig {
         }
         self
     }
-    pub fn set_tlv(&mut self, tlvs: Vec<u8>) {
-        self.tlv = Tlvarray::D(tlvs);
+    pub fn set_tlv(&mut self, tlvs: &[u8]) {
+        self.tlv = Tlvarray::D(tlvs.to_vec());
     }
 
     pub fn get_timestamp(&self) -> SystemTime {
