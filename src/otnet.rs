@@ -58,7 +58,7 @@ impl Serialize for Tlvarray {
     {
         match self {
             Tlvarray::D(tlv) => Base64Standard::serialize(&tlv, serializer),
-            Tlvarray::None => format!("null").serialize(serializer),
+            Tlvarray::None => None::<&str>.serialize(serializer),
         }
     }
 }
