@@ -45,12 +45,35 @@ pub struct OtNetwork {
     network_name: String,
     updated: Option<i64>,
 }
-#[derive(PartialEq, Hash, Eq, Clone, Debug, Serialize, Deserialize)]
-struct Tlvarray {
-    #[serde(with = "Base64Standard")]
-    tlv: Vec<u8>,
+#[derive(PartialEq, Hash, Eq, Clone, Debug)]
+enum Tlvarray {
+    D(Vec<u8>),
+    None,
 }
 
+impl Serialize for Tlvarray {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        match self {
+            Tlvarray::D(tlv) => Base64Standard::serialize(&tlv, serializer),
+            Tlvarray::None => format!("null").serialize(serializer),
+        }
+    }
+}
+impl<'de> Deserialize<'de> for Tlvarray {
+    fn deserialize<D>(deserializer: D) -> Result<Tlvarray, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        if let Ok(tlv) = Base64Standard::deserialize(deserializer) {
+            Ok(Tlvarray::D(tlv))
+        } else {
+            Ok(Tlvarray::None)
+        }
+    }
+}
 #[derive(PartialEq, Hash, Eq, Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "kind")]
 pub struct OtNetConfig {
@@ -58,12 +81,12 @@ pub struct OtNetConfig {
     timestamp: Option<DateTime<Utc>>,
     #[serde(rename = "networkName")]
     networkname: String, // The Thread network name.
-    tlv: Option<Tlvarray>,
+    tlv: Tlvarray,
 }
 
 impl OtNetConfig {
     pub fn has_tlv(&self) -> bool {
-        self.tlv.is_some()
+        self.tlv != Tlvarray::None
     }
     pub fn has_netname(&self) -> bool {
         !self.networkname.is_empty()
@@ -72,7 +95,7 @@ impl OtNetConfig {
         OtNetConfig {
             timestamp: None,
             networkname: "".to_string(),
-            tlv: None,
+            tlv: Tlvarray::None,
         }
     }
     pub fn new_net(&self) -> (Vec<u8>, u16, String, u64, Vec<u8>, u32) {
@@ -93,7 +116,7 @@ impl OtNetConfig {
         self
     }
     pub fn set_tlv(&mut self, tlvs: Vec<u8>) {
-        self.tlv = Some(Tlvarray { tlv: tlvs });
+        self.tlv = Tlvarray::D(tlvs);
     }
 
     pub fn get_timestamp(&self) -> SystemTime {
@@ -111,10 +134,9 @@ impl OtNetConfig {
         self.networkname.clone()
     }
     pub fn get_tlv(&self) -> Vec<u8> {
-        if let Some(tlv) = &self.tlv {
-            tlv.tlv.clone()
-        } else {
-            vec![]
+        match self.tlv {
+            Tlvarray::D(ref tlv) => tlv.clone(),
+            Tlvarray::None => Vec::new(),
         }
     }
 }
