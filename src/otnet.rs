@@ -104,7 +104,14 @@ impl OtNetConfig {
         let xpanid = u64::MAX;
         let panid = u16::MAX;
         let channel_mask = u32::MAX;
-        (netkey, panid, self.networkname.clone(), xpanid, psk, channel_mask)
+        (
+            netkey,
+            panid,
+            self.networkname.clone(),
+            xpanid,
+            psk,
+            channel_mask,
+        )
     }
     pub fn set_netname(&mut self, netname: &str) {
         self.networkname = netname.to_string();

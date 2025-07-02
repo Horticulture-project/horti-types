@@ -113,17 +113,31 @@ impl<'a> dbus::arg::Get<'a> for Neighbor {
                     (0, m_ext_address) => ret.ext_address(m_ext_address.as_u64()?),
                     (1, m_age) => ret.age(m_age.as_u64()? as u32),
                     (2, m_rloc16) => ret.rloc16(m_rloc16.as_u64()? as u16),
-                    (3, m_link_frame_counter) => ret.link_frame_counter(m_link_frame_counter.as_u64()? as u32),
-                    (4, m_mle_frame_counter) => ret.mle_frame_counter(m_mle_frame_counter.as_u64()? as u32),
+                    (3, m_link_frame_counter) => {
+                        ret.link_frame_counter(m_link_frame_counter.as_u64()? as u32)
+                    }
+                    (4, m_mle_frame_counter) => {
+                        ret.mle_frame_counter(m_mle_frame_counter.as_u64()? as u32)
+                    }
                     (5, m_link_quality_in) => ret.link_quality(m_link_quality_in.as_u64()? as u8),
                     (6, m_average_rssi) => ret.avg_rssi(m_average_rssi.as_i64()? as i8),
                     (7, m_last_rssi) => ret.last_rssi(m_last_rssi.as_i64()? as i8),
-                    (8, m_frame_error_rate) => ret.frame_error_rate(m_frame_error_rate.as_u64()? as u16),
-                    (9, m_message_error_rate) => ret.message_error_rate(m_message_error_rate.as_u64()? as u16),
+                    (8, m_frame_error_rate) => {
+                        ret.frame_error_rate(m_frame_error_rate.as_u64()? as u16)
+                    }
+                    (9, m_message_error_rate) => {
+                        ret.message_error_rate(m_message_error_rate.as_u64()? as u16)
+                    }
                     (10, m_version) => ret.version(m_version.as_u64()? as u16),
-                    (11, m_rx_on_when_idle) => ret.rx_on_when_idle(m_rx_on_when_idle.as_u64()? != 0),
-                    (12, m_full_thread_device) => ret.full_thread_device(m_full_thread_device.as_u64()? != 0),
-                    (13, m_full_network_data) => ret.full_network_data(m_full_network_data.as_u64()? != 0),
+                    (11, m_rx_on_when_idle) => {
+                        ret.rx_on_when_idle(m_rx_on_when_idle.as_u64()? != 0)
+                    }
+                    (12, m_full_thread_device) => {
+                        ret.full_thread_device(m_full_thread_device.as_u64()? != 0)
+                    }
+                    (13, m_full_network_data) => {
+                        ret.full_network_data(m_full_network_data.as_u64()? != 0)
+                    }
                     (14, m_is_child) => ret.is_child(m_is_child.as_u64()? != 0),
                     _ => return None,
                 };
@@ -170,12 +184,18 @@ impl NeighborDataZephyr {
             m_link_quality: u8::try_from(m_link_quality).unwrap_or(0),
             m_last_rssi: i8::try_from(m_last_rssi).unwrap_or(0),
             m_average_rssi: i8::try_from(m_average_rssi).unwrap_or(0),
-            bools: (u8::from(fnd) << 3 | u8::from(ftd) << 2 | u8::from(child) << 1 | u8::from(rx_on_idle)),
+            bools: (u8::from(fnd) << 3
+                | u8::from(ftd) << 2
+                | u8::from(child) << 1
+                | u8::from(rx_on_idle)),
             pad1: 0,
         }
     }
     unsafe fn as_u8_slice(&self) -> &[u8] {
-        ::core::slice::from_raw_parts((self as *const Self) as *const u8, ::core::mem::size_of::<Self>())
+        ::core::slice::from_raw_parts(
+            (self as *const Self) as *const u8,
+            ::core::mem::size_of::<Self>(),
+        )
     }
 }
 #[cfg(test)]
