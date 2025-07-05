@@ -2,19 +2,40 @@ use base64::engine::general_purpose::STANDARD;
 use base64_serde::base64_serde_type;
 use chrono::{DateTime, Utc};
 
-// #[cfg(feature = "dbus")]
+#[cfg(feature = "dbus")]
 use dbus::blocking::stdintf::org_freedesktop_dbus::Properties;
 
-// #[cfg(feature = "dbus")]
-use dbus::{blocking::Connection, Error as wpanError};
+#[cfg(feature = "dbus")]
+use dbus::{blocking::Connection, Error as WpanError};
+
+#[cfg(feature = "dbus")]
+use machine_uid;
+
+#[cfg(not(feature = "dbus"))]
+#[derive(Debug)]
+pub struct WpanError;
+
+#[cfg(not(feature = "dbus"))]
+impl std::fmt::Display for WpanError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "dbus feature not enabled")
+    }
+}
+
+#[cfg(not(feature = "dbus"))]
+impl std::error::Error for WpanError {}
 
 use serde::{Deserialize, Serialize};
 base64_serde_type!(Base64Standard, STANDARD);
 
+#[cfg(not(feature = "dbus"))]
+use std::time::SystemTime;
+#[cfg(feature = "dbus")]
 use std::time::{Duration, SystemTime};
 
 use crate::neighbors::Neighbor;
 #[derive(PartialEq, Hash, Eq, Clone, Debug)]
+#[allow(dead_code)]
 enum WpanStatus {
     Disabled,
     Detached,
@@ -23,6 +44,7 @@ enum WpanStatus {
     Leader,
 }
 // wpanstatus returned from dbus as type s
+#[cfg(feature = "dbus")]
 impl<'a> dbus::arg::Get<'a> for WpanStatus {
     fn get(i: &mut dbus::arg::Iter<'a>) -> Option<Self> {
         i.get().and_then(|s: &str| match s {
@@ -149,6 +171,7 @@ impl OtNetConfig {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct WpanData {
     status: WpanStatus,
     rloc16: u16,
@@ -169,12 +192,13 @@ impl WpanData {
     pub fn devid(&self) -> u64 {
         self.hwid
     }
-    pub fn new_updated() -> Result<WpanData, wpanError> {
+    pub fn new_updated() -> Result<WpanData, WpanError> {
         let mut ret = WpanData::new();
         ret.update()?;
         Ok(ret)
     }
-    pub fn update(&mut self) -> Result<(), wpanError> {
+    pub fn update(&mut self) -> Result<(), WpanError> {
+        #[cfg(feature = "dbus")]
         #[cfg(unix)]
         {
             let dbuspath = "/io/openthread/BorderRouter/wpan0";
@@ -189,8 +213,19 @@ impl WpanData {
             self.status = proxy.get("io.openthread.BorderRouter", "DeviceRole")?;
             self.neighbors = proxy.get("io.openthread.BorderRouter", "NeighborTable")?;
             self.hwid = u128::from_str_radix(&machine_uid::get().unwrap(), 16).unwrap() as u64;
+            return Ok(());
         }
-        Ok(())
+        #[cfg(not(feature = "dbus"))]
+        {
+            // When dbus is not available, return an error
+            return Err(WpanError);
+        }
+        #[cfg(feature = "dbus")]
+        #[cfg(not(unix))]
+        {
+            // When dbus is available but not on unix, return an error
+            return Err(WpanError);
+        }
     }
     pub fn is_connected(&self) -> bool {
         match self.status {

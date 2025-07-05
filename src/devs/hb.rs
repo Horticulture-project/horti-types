@@ -12,6 +12,10 @@ pub struct HeartBeatZephyr {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Default, Clone, Copy)]
 #[serde(tag = "kind")]
 pub struct HeartBeat {
+    #[serde(
+        serialize_with = "serialize_u64_as_string",
+        deserialize_with = "deserialize_string_as_u64"
+    )]
     pub id: u64,
     #[serde(rename = "firmware")]
     pub fwver: u32,
@@ -119,6 +123,7 @@ pub enum DevType {
     GetshopLock,
     StaySerosModule,
     StayIdlock,
+    TeLys,
     Unknown(u8),
 }
 impl Default for DevType {
@@ -157,6 +162,7 @@ impl From<u8> for DevType {
             17 => DevType::GetshopLock,
             18 => DevType::StaySerosModule,
             19 => DevType::StayIdlock,
+            20 => DevType::TeLys,
             n => DevType::Unknown(n),
         }
     }
@@ -174,6 +180,7 @@ impl From<DevType> for u8 {
             DevType::GetshopLock => 17,
             DevType::StaySerosModule => 18,
             DevType::StayIdlock => 19,
+            DevType::TeLys => 20,
             DevType::Unknown(n) => n,
         }
     }
@@ -192,6 +199,7 @@ impl Display for DevType {
             DevType::GetshopLock => write!(f, "GetshopLock"),
             DevType::StaySerosModule => write!(f, "StaySerosModule"),
             DevType::StayIdlock => write!(f, "StayIdlock"),
+            DevType::TeLys => write!(f, "TeLys"),
             DevType::Unknown(n) => write!(f, "Unknown {}", n),
         }
     }
@@ -209,6 +217,7 @@ impl From<&str> for DevType {
             "GetshopLock" => DevType::GetshopLock,
             "StaySerosModule" => DevType::StaySerosModule,
             "StayIdlock" => DevType::StayIdlock,
+            "TeLys" => DevType::TeLys,
             _ => DevType::Unknown(0),
         }
     }
@@ -314,4 +323,20 @@ impl From<&str> for DevStatus {
             _ => DevStatus::Unknown(0),
         }
     }
+}
+
+// Helper functions for serializing u64 as string
+fn serialize_u64_as_string<S>(value: &u64, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::ser::Serializer,
+{
+    serializer.serialize_str(&value.to_string())
+}
+
+fn deserialize_string_as_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
+where
+    D: serde::de::Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    s.parse::<u64>().map_err(serde::de::Error::custom)
 }

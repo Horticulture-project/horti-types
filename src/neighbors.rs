@@ -1,3 +1,4 @@
+#[cfg(feature = "dbus")]
 use dbus::{arg::ArgType, Signature};
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
@@ -26,9 +27,8 @@ impl Display for Neighbor {
         )
     }
 }
-
+#[allow(dead_code)]
 impl Neighbor {
-    #[allow(dead_code)]
     pub fn new() -> Neighbor {
         Neighbor {
             rloc16: 0,
@@ -104,6 +104,7 @@ impl Neighbor {
     }
 }
 
+#[cfg(feature = "dbus")]
 impl<'a> dbus::arg::Get<'a> for Neighbor {
     fn get(i: &mut dbus::arg::Iter<'a>) -> Option<Self> {
         if let Some(i) = i.recurse(ArgType::Struct) {
@@ -149,6 +150,7 @@ impl<'a> dbus::arg::Get<'a> for Neighbor {
     }
 }
 
+#[cfg(feature = "dbus")]
 impl dbus::arg::Arg for Neighbor {
     const ARG_TYPE: ArgType = ArgType::Struct;
     fn signature() -> Signature<'static> {

@@ -13,7 +13,7 @@ impl Router {
             id,
             name: None,
             uptime: None,
-            last_active: SystemTime::now(),
+            last_active: SystemTime::UNIX_EPOCH,
         }
     }
     pub fn uptime(&self) -> Option<Duration> {
@@ -24,5 +24,8 @@ impl Router {
     }
     pub fn dev_id(&self) -> String {
         format!("{:#08x}", self.id)
+    }
+    pub fn last_active(&self) -> SystemTime {
+        self.last_active
     }
 }

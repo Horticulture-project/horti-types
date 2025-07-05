@@ -1,7 +1,7 @@
 use crate::devs::SensorReading;
 use serde::{Deserialize, Serialize};
-use std::time::Duration;
-#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize)]
+use std::time::{Duration, SystemTime};
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SoilSensor {
     pub name: Option<String>,
@@ -12,6 +12,7 @@ pub struct SoilSensor {
     pub light: Option<SensorReading>,
     pub battery: Option<SensorReading>,
     pub uptime: Option<u32>,
+    pub last_active: SystemTime,
 }
 
 impl SoilSensor {
@@ -25,6 +26,7 @@ impl SoilSensor {
             light: None,
             battery: None,
             uptime: None,
+            last_active: SystemTime::now(),
         }
     }
     pub fn temp(&self) -> Option<f32> {
@@ -44,5 +46,8 @@ impl SoilSensor {
     }
     pub fn dev_id(&self) -> String {
         format!("{:#08x}", self.device_sn)
+    }
+    pub fn last_active(&self) -> SystemTime {
+        self.last_active
     }
 }
