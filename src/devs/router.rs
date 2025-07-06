@@ -16,16 +16,27 @@ impl Router {
             last_active: SystemTime::UNIX_EPOCH,
         }
     }
-    pub fn uptime(&self) -> Option<Duration> {
-        Some(Duration::from_secs(self.uptime? as u64))
-    }
-    pub fn name(&self) -> Option<&str> {
-        self.name.as_deref()
-    }
-    pub fn dev_id(&self) -> String {
-        format!("{:#08x}", self.id)
-    }
     pub fn last_active(&self) -> SystemTime {
         self.last_active
+    }
+}
+impl super::Dev for Router {
+    fn dev_id(&self) -> String {
+        format!("{:#08x}", self.id)
+    }
+    fn display_name(&self) -> String {
+        match self.name() {
+            Some(name) => name.to_string(),
+            None => self.dev_id(),
+        }
+    }
+    fn last_active(&self) -> SystemTime {
+        self.last_active
+    }
+    fn uptime(&self) -> Option<Duration> {
+        Some(Duration::from_secs(self.uptime? as u64))
+    }
+    fn name(&self) -> Option<&str> {
+        self.name.as_deref()
     }
 }

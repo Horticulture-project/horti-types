@@ -42,15 +42,16 @@ impl TeLys {
     pub fn battery(&self) -> Option<f32> {
         Some(self.battery?.to_float())
     }
-
-    pub fn name(&self) -> Option<&str> {
+}
+impl super::Dev for TeLys {
+    fn name(&self) -> Option<&str> {
         self.name.as_deref()
     }
-
-    pub fn dev_id(&self) -> String {
+    fn dev_id(&self) -> String {
         format!("{:#08x}", self.device_sn)
     }
-    pub fn last_active(&self) -> SystemTime {
+
+    fn last_active(&self) -> SystemTime {
         self.last_active
     }
 }

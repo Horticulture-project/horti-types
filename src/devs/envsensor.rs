@@ -29,19 +29,24 @@ impl EnvSensor {
     pub fn humidity(&self) -> Option<f32> {
         Some(self.humidity?.to_float())
     }
-    pub fn uptime(&self) -> Option<Duration> {
-        Some(Duration::from_secs(self.uptime? as u64))
-    }
+
     pub fn battery(&self) -> Option<f32> {
         Some(self.battery?.to_float())
     }
-    pub fn name(&self) -> Option<&str> {
-        self.name.as_deref()
-    }
-    pub fn dev_id(&self) -> String {
+}
+impl super::Dev for EnvSensor {
+    fn dev_id(&self) -> String {
         format!("{:#08x}", self.id)
     }
-    pub fn last_active(&self) -> SystemTime {
+    fn name(&self) -> Option<&str> {
+        self.name.as_deref()
+    }
+
+    fn last_active(&self) -> SystemTime {
         self.last_active
+    }
+
+    fn uptime(&self) -> Option<Duration> {
+        Some(Duration::from_secs(self.uptime? as u64))
     }
 }
