@@ -54,4 +54,7 @@ impl super::Dev for TeLys {
     fn last_active(&self) -> SystemTime {
         self.last_active
     }
+    fn dev_type(&self) -> &'static str {
+        "TeLys"
+    }
 }

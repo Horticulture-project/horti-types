@@ -1,3 +1,5 @@
+use super::Battery;
+use super::Dev;
 use crate::devs::SensorReading;
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime};
@@ -38,11 +40,17 @@ impl SoilSensor {
     pub fn uptime(&self) -> Option<Duration> {
         Some(Duration::from_secs(self.uptime? as u64))
     }
-    pub fn battery(&self) -> Option<f32> {
+}
+impl Battery for SoilSensor {
+    fn battery(&self) -> Option<f32> {
         Some(self.battery?.to_float())
     }
+    fn bat_pct(&self) -> Option<f32> {
+        self.battery()
+            .map(|b| (((b - 2.5) / (3.3 - 2.5)) * 100.0).clamp(0.0, 100.0))
+    }
 }
-impl super::Dev for SoilSensor {
+impl Dev for SoilSensor {
     fn dev_id(&self) -> String {
         format!("{:#08x}", self.device_sn)
     }
@@ -60,5 +68,46 @@ impl super::Dev for SoilSensor {
             Some(name) => name.to_string(),
             None => self.dev_id(),
         }
+    }
+    fn dev_type(&self) -> &'static str {
+        "Soil Sensor"
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::devs::SensorReading;
+
+    #[test]
+    fn test_soil_sensor_new() {
+        let sensor = SoilSensor {
+            device_sn: 0x12345678,
+            name: None,
+            soil_moisture: None,
+            temp: None,
+            humidity: None,
+            light: None,
+            battery: Some(SensorReading {
+                h: 2,
+                l: 400000,
+                timestamp: SystemTime::now(),
+            }),
+            uptime: None,
+            last_active: SystemTime::now(),
+        };
+        assert_eq!(sensor.dev_id(), "0x12345678");
+        assert_eq!(sensor.bat_pct(), Some(0.0));
+        assert_eq!(sensor.battery(), Some(2.6));
+    }
+
+    #[test]
+    fn test_soil_sensor_temp() {
+        let mut sensor = SoilSensor::new(0x12345678);
+        sensor.temp = Some(SensorReading {
+            h: 25,
+            l: 500000,
+            timestamp: SystemTime::now(),
+        });
+        assert_eq!(sensor.temp(), Some(25.5));
     }
 }

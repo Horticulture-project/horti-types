@@ -31,4 +31,7 @@ impl super::Dev for LedPanel {
     fn last_active(&self) -> SystemTime {
         self.last_active
     }
+    fn dev_type(&self) -> &'static str {
+        "LED Panel"
+    }
 }

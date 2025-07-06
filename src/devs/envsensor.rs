@@ -49,4 +49,7 @@ impl super::Dev for EnvSensor {
     fn uptime(&self) -> Option<Duration> {
         Some(Duration::from_secs(self.uptime? as u64))
     }
+    fn dev_type(&self) -> &'static str {
+        "Environmental Sensor"
+    }
 }

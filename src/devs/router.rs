@@ -39,4 +39,7 @@ impl super::Dev for Router {
     fn name(&self) -> Option<&str> {
         self.name.as_deref()
     }
+    fn dev_type(&self) -> &'static str {
+        "Router"
+    }
 }

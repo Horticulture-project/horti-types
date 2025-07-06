@@ -1,6 +1,3 @@
-// use crate::coap_backend::MeasurementType as MT;
-// use crate::coap_backend::SensorChannel;
-// use crate::storage::Measurement;
 use serde::{Deserialize, Serialize};
 use std::time::SystemTime;
 pub mod envsensor;
@@ -26,6 +23,15 @@ pub trait Dev {
             Some(name) => name.to_string(),
             None => self.dev_id(),
         }
+    }
+    fn dev_type(&self) -> &'static str;
+}
+pub trait Battery {
+    fn battery(&self) -> Option<f32> {
+        None
+    }
+    fn bat_pct(&self) -> Option<f32> {
+        self.battery().map(|b| (3.3 - 2.5) / (b - 2.5) * 100.0)
     }
 }
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -84,6 +90,24 @@ impl Dev for Device {
             Device::Router(router) => router.uptime(),
             Device::Led(panel) => panel.uptime(),
             Device::TeLys(telys) => telys.uptime(),
+        }
+    }
+    fn display_name(&self) -> String {
+        match self {
+            Device::Soil(sensor) => sensor.display_name(),
+            Device::Env(sensor) => sensor.display_name(),
+            Device::Router(router) => router.display_name(),
+            Device::Led(panel) => panel.display_name(),
+            Device::TeLys(telys) => telys.display_name(),
+        }
+    }
+    fn dev_type(&self) -> &'static str {
+        match self {
+            Device::Soil(_) => "Soil Sensor",
+            Device::Env(_) => "Environmental Sensor",
+            Device::Router(_) => "Router",
+            Device::Led(_) => "LED Panel",
+            Device::TeLys(_) => "TeLys",
         }
     }
 }
