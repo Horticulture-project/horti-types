@@ -1,11 +1,12 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct Router {
     id: u64,
     pub name: Option<String>,
     pub uptime: Option<u32>,
-    pub last_active: SystemTime,
+    pub last_active: DateTime<Utc>,
 }
 impl Router {
     pub fn new(id: u64) -> Self {
@@ -13,16 +14,16 @@ impl Router {
             id,
             name: None,
             uptime: None,
-            last_active: SystemTime::UNIX_EPOCH,
+            last_active: DateTime::from_timestamp(0, 0).unwrap_or_else(|| Utc::now()),
         }
     }
-    pub fn last_active(&self) -> SystemTime {
+    pub fn last_active(&self) -> DateTime<Utc> {
         self.last_active
     }
 }
 impl super::Dev for Router {
-    fn dev_id(&self) -> String {
-        format!("{:#08x}", self.id)
+    fn dev_sn(&self) -> u64 {
+        self.id
     }
     fn display_name(&self) -> String {
         match self.name() {
@@ -30,7 +31,7 @@ impl super::Dev for Router {
             None => self.dev_id(),
         }
     }
-    fn last_active(&self) -> SystemTime {
+    fn last_active(&self) -> DateTime<Utc> {
         self.last_active
     }
     fn uptime(&self) -> Option<Duration> {

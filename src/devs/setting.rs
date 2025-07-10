@@ -1,3 +1,4 @@
+use bincode::Encode;
 use derivative::Derivative;
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Default, Derivative)]
@@ -6,14 +7,14 @@ pub struct DevSetting {
     #[serde(rename = "updated")]
     pub updated_at: i32,
     #[serde(rename = "typeId")]
-    pub settings_type: i32,
+    pub settings_type: i64,
     pub channel: i32,
     #[derivative(PartialOrd = "ignore", Ord = "ignore")]
     pub value: i32,
 }
 
 impl DevSetting {
-    #[cfg(test)]
+    #[allow(dead_code)]
     pub fn to_zephyr(&self) -> DevSettingsZephyr {
         DevSettingsZephyr {
             settings_type: i16::try_from(self.settings_type).unwrap_or(0),
@@ -22,39 +23,15 @@ impl DevSetting {
             updated_at: self.updated_at,
         }
     }
-    pub fn id(&self) -> i32 {
-        self.settings_type
-    }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Default, Encode)]
 pub struct DevSettingsZephyr {
     pub settings_type: i16,
     pub channel: i16,
     pub value: i32,
     pub updated_at: i32,
 }
-
-// horti_db=# select * from settings ;
-//  device_id  | setting_type_id | i2c | channel | value | created_at | updated_at
-// ------------+-----------------+-----+---------+-------+------------+------------
-//  3203386110 |               1 |   0 |       0 |   255 |            |
-//  3203386110 |               2 |   0 |       0 |   600 |            |
-//  3203386110 |               3 |   0 |       0 |  6000 |            |
-//  3203386110 |               7 |   0 |       0 |     1 |            |
-// (4 rows)
-// horti_db=# select * from setting_types ;
-//  id |      description
-// ----+-----------------------
-//   0 | settins-rev
-//   1 | PWM Value
-//   2 | Time-ON
-//   3 | Time-OFF
-//   4 | Dim-Time/Log interval
-//   5 | LED-State
-//   6 | Follow-leader
-//   7 | FW-Branch
-// (7 rows)
 
 ////////////////////////////////////////////////////////TEST///////////////////////////////////////////////////////
 

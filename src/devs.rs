@@ -1,9 +1,10 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::time::SystemTime;
 pub mod envsensor;
 pub mod hb;
 pub mod ledpanel;
 pub mod router;
+pub mod setting;
 pub mod soilsensor;
 pub mod telys;
 use envsensor::EnvSensor;
@@ -12,9 +13,12 @@ use router::Router;
 use soilsensor::SoilSensor;
 use telys::TeLys;
 pub trait Dev {
-    fn dev_id(&self) -> String;
+    fn dev_id(&self) -> String {
+        format!("{:016x}", self.dev_sn())
+    }
+    fn dev_sn(&self) -> u64;
     fn name(&self) -> Option<&str>;
-    fn last_active(&self) -> SystemTime;
+    fn last_active(&self) -> DateTime<Utc>;
     fn uptime(&self) -> Option<std::time::Duration> {
         None
     }
@@ -25,6 +29,9 @@ pub trait Dev {
         }
     }
     fn dev_type(&self) -> &'static str;
+    fn fwver(&self) -> Option<[u8; 4]> {
+        None
+    }
 }
 pub trait Battery {
     fn battery(&self) -> Option<f32> {
@@ -32,6 +39,56 @@ pub trait Battery {
     }
     fn bat_pct(&self) -> Option<f32> {
         self.battery().map(|b| (3.3 - 2.5) / (b - 2.5) * 100.0)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize, Hash, Eq)]
+pub enum DeviceType {
+    Unknown,
+    BorderRouter,
+    HortiLed,
+    SoilSensor,
+    WeatherStation,
+    EnvironmentSensor,
+    GarageDoor,
+    GetshopModule,
+    GetshopLock,
+    StaySerosModule,
+    StayIdlock,
+}
+impl Into<&'static str> for DeviceType {
+    fn into(self) -> &'static str {
+        match self {
+            DeviceType::Unknown => "Unknown device",
+            DeviceType::BorderRouter => "BorderRouter",
+            DeviceType::HortiLed => "Horticulture: LED-panel",
+            DeviceType::SoilSensor => "Horticulture: Soil Sensor",
+            DeviceType::WeatherStation => "Weather Station",
+            DeviceType::EnvironmentSensor => "Environment sensor",
+            DeviceType::GarageDoor => "Garage door control",
+            DeviceType::GetshopModule => "GetShop Module 1.5",
+            DeviceType::GetshopLock => "GetShop Module 1.9",
+            DeviceType::StaySerosModule => "StaySeros Module",
+            DeviceType::StayIdlock => "StayIdlock",
+        }
+    }
+}
+impl From<&str> for DeviceType {
+    fn from(s: &str) -> Self {
+        match s {
+            "UNKNOWN" => DeviceType::Unknown,
+            "BorderRouter" => DeviceType::BorderRouter,
+            "HortiLed" => DeviceType::HortiLed,
+            "HortiPlantSensor" => DeviceType::SoilSensor,
+            "WeatherStation" => DeviceType::WeatherStation,
+            "EnvironmentSensor" => DeviceType::EnvironmentSensor,
+            "GarageDoor" => DeviceType::GarageDoor,
+            "GetshopModule" => DeviceType::GetshopModule,
+            "GetshopLock" => DeviceType::GetshopLock,
+            "StaySerosModule" => DeviceType::StaySerosModule,
+            "StayIdlock" => DeviceType::StayIdlock,
+            _ => panic!("Unknown device type: {}", s),
+        }
     }
 }
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -46,7 +103,6 @@ pub enum Device {
 pub struct SensorReading {
     pub h: i32,
     pub l: i32,
-    pub timestamp: SystemTime,
 }
 impl SensorReading {
     fn to_float(&self) -> f32 {
@@ -54,13 +110,13 @@ impl SensorReading {
     }
 }
 impl Dev for Device {
-    fn dev_id(&self) -> String {
+    fn dev_sn(&self) -> u64 {
         match self {
-            Device::Soil(sensor) => sensor.dev_id(),
-            Device::Env(sensor) => sensor.dev_id(),
-            Device::Router(router) => router.dev_id(),
-            Device::Led(panel) => panel.dev_id(),
-            Device::TeLys(telys) => telys.dev_id(),
+            Device::Soil(sensor) => sensor.dev_sn(),
+            Device::Env(sensor) => sensor.dev_sn(),
+            Device::Router(router) => router.dev_sn(),
+            Device::Led(panel) => panel.dev_sn(),
+            Device::TeLys(telys) => telys.dev_sn(),
         }
     }
 
@@ -74,7 +130,7 @@ impl Dev for Device {
         }
     }
 
-    fn last_active(&self) -> SystemTime {
+    fn last_active(&self) -> DateTime<Utc> {
         match self {
             Device::Soil(sensor) => sensor.last_active(),
             Device::Env(sensor) => sensor.last_active(),
@@ -108,6 +164,36 @@ impl Dev for Device {
             Device::Router(_) => "Router",
             Device::Led(_) => "LED Panel",
             Device::TeLys(_) => "TeLys",
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, Hash, Eq)]
+pub struct DevInfo {
+    pub dev_sn: u64,
+    pub name: Option<String>,
+    pub rloc16: u16,
+    pub last_active: DateTime<Utc>,
+    pub dev_type: DeviceType,
+    pub fwver: Option<Vec<u8>>,
+    pub uptime: Option<i64>,
+}
+impl Dev for DevInfo {
+    fn dev_sn(&self) -> u64 {
+        self.dev_sn
+    }
+    fn name(&self) -> Option<&str> {
+        self.name.as_deref()
+    }
+    fn last_active(&self) -> DateTime<Utc> {
+        self.last_active
+    }
+    fn dev_type(&self) -> &'static str {
+        self.dev_type.into()
+    }
+    fn fwver(&self) -> Option<[u8; 4]> {
+        match self.fwver {
+            Some(ref fw) if fw.len() == 4 => fw.as_slice().try_into().ok(),
+            _ => None,
         }
     }
 }

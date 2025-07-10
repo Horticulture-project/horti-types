@@ -3,6 +3,8 @@ use dbus::{arg::ArgType, Signature};
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
+use crate::devs::{self};
+
 #[derive(Serialize, Deserialize, PartialEq, Hash, Eq, Debug, Clone)]
 pub struct Neighbor {
     pub rloc16: u16,
@@ -200,6 +202,28 @@ impl NeighborDataZephyr {
         )
     }
 }
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Hash, Eq)]
+pub struct NetGraphEdge {
+    pub source: usize,
+    pub dest: usize,
+    pub rssi: i32,
+    pub link_quality: i32,
+    pub rx_on_idle: bool,
+    pub child: bool,
+    pub ftd: bool,
+    pub fnd: bool,
+}
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Hash, Eq)]
+pub struct NetGraph {
+    pub edges: Vec<NetGraphEdge>,
+    pub nodes: Vec<devs::DevInfo>,
+}
+impl Into<(Vec<NetGraphEdge>, Vec<devs::DevInfo>)> for NetGraph {
+    fn into(self) -> (Vec<NetGraphEdge>, Vec<devs::DevInfo>) {
+        (self.edges, self.nodes)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{Neighbor, NeighborDataZephyr};

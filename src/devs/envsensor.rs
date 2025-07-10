@@ -1,6 +1,7 @@
 use crate::devs::SensorReading;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct EnvSensor {
     id: u64,
@@ -9,7 +10,7 @@ pub struct EnvSensor {
     pub humidity: Option<SensorReading>,
     pub battery: Option<SensorReading>,
     pub uptime: Option<u32>,
-    pub last_active: SystemTime,
+    pub last_active: DateTime<Utc>,
 }
 impl EnvSensor {
     pub fn new(id: u64) -> Self {
@@ -20,7 +21,7 @@ impl EnvSensor {
             humidity: None,
             battery: None,
             uptime: None,
-            last_active: SystemTime::now(),
+            last_active: Utc::now(),
         }
     }
     pub fn temp(&self) -> Option<f32> {
@@ -35,14 +36,14 @@ impl EnvSensor {
     }
 }
 impl super::Dev for EnvSensor {
-    fn dev_id(&self) -> String {
-        format!("{:#08x}", self.id)
+    fn dev_sn(&self) -> u64 {
+        self.id
     }
     fn name(&self) -> Option<&str> {
         self.name.as_deref()
     }
 
-    fn last_active(&self) -> SystemTime {
+    fn last_active(&self) -> DateTime<Utc> {
         self.last_active
     }
 

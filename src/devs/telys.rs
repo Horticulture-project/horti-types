@@ -1,6 +1,7 @@
 use crate::devs::SensorReading;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -11,7 +12,7 @@ pub struct TeLys {
     pub light: Option<SensorReading>,
     pub battery: Option<SensorReading>,
     pub uptime: Option<u32>,
-    pub last_active: SystemTime,
+    pub last_active: DateTime<Utc>,
 }
 
 impl TeLys {
@@ -23,7 +24,7 @@ impl TeLys {
             light: None,
             battery: None,
             uptime: None,
-            last_active: SystemTime::now(),
+            last_active: Utc::now(),
         }
     }
 
@@ -47,11 +48,11 @@ impl super::Dev for TeLys {
     fn name(&self) -> Option<&str> {
         self.name.as_deref()
     }
-    fn dev_id(&self) -> String {
-        format!("{:#08x}", self.device_sn)
+    fn dev_sn(&self) -> u64 {
+        self.device_sn
     }
 
-    fn last_active(&self) -> SystemTime {
+    fn last_active(&self) -> DateTime<Utc> {
         self.last_active
     }
     fn dev_type(&self) -> &'static str {

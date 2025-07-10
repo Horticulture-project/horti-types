@@ -1,11 +1,12 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct LedPanel {
     id: u64,
     pub name: Option<String>,
     pub uptime: Option<u32>,
-    pub last_active: SystemTime,
+    pub last_active: DateTime<Utc>,
 }
 impl LedPanel {
     pub fn new(id: u64) -> Self {
@@ -13,13 +14,13 @@ impl LedPanel {
             id,
             name: None,
             uptime: None,
-            last_active: SystemTime::now(),
+            last_active: Utc::now(),
         }
     }
 }
 impl super::Dev for LedPanel {
-    fn dev_id(&self) -> String {
-        format!("{:#08x}", self.id)
+    fn dev_sn(&self) -> u64 {
+        self.id
     }
     fn name(&self) -> Option<&str> {
         self.name.as_deref()
@@ -28,7 +29,7 @@ impl super::Dev for LedPanel {
         Some(Duration::from_secs(self.uptime? as u64))
     }
 
-    fn last_active(&self) -> SystemTime {
+    fn last_active(&self) -> DateTime<Utc> {
         self.last_active
     }
     fn dev_type(&self) -> &'static str {

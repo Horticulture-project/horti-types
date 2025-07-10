@@ -1,6 +1,6 @@
 use log::*;
 use serde::{Deserialize, Serialize};
-use std::{fmt, time::SystemTime};
+use std::fmt;
 #[derive(Serialize, Deserialize, PartialEq, Hash, Eq, Debug, Clone)]
 pub struct Measurement {
     pub channel: SensorChannel,
@@ -8,7 +8,6 @@ pub struct Measurement {
     pub measurement_type: MeasurementType,
     pub value1: i32,
     pub value2: i32,
-    pub timestamp: Option<SystemTime>,
 }
 
 impl Measurement {
@@ -20,7 +19,6 @@ impl Measurement {
                 measurement_type: payload[1].into(),
                 value1: i32::from_le_bytes([payload[4], payload[5], payload[6], payload[7]]),
                 value2: i32::from_le_bytes([payload[8], payload[9], payload[10], payload[11]]),
-                timestamp: Some(SystemTime::now()),
             })
         } else {
             None
@@ -45,12 +43,12 @@ impl SensorDataZephyr {
             measurement_type: self.measurement_type.into(),
             value1: self.value1,
             value2: self.value2,
-            timestamp: Some(SystemTime::now()),
         }
     }
 }
 #[derive(Serialize, Deserialize, PartialEq, Hash, Eq, Debug, Clone)]
 #[repr(u8)]
+#[serde(into = "i32", from = "i32")]
 pub enum MeasurementType {
     DoorlockLogs = 10,
     AmbientTemperature = 13,
@@ -233,6 +231,7 @@ impl From<&str> for MeasurementType {
 }
 #[derive(Serialize, Deserialize, PartialEq, Hash, Eq, Debug, Clone, Copy)]
 #[repr(i32)]
+#[serde(into = "i32", from = "i32")]
 pub enum SensorChannel {
     Shtc3,
     CapSense,

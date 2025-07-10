@@ -1,8 +1,9 @@
 use super::Battery;
 use super::Dev;
 use crate::devs::SensorReading;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SoilSensor {
@@ -14,7 +15,7 @@ pub struct SoilSensor {
     pub light: Option<SensorReading>,
     pub battery: Option<SensorReading>,
     pub uptime: Option<u32>,
-    pub last_active: SystemTime,
+    pub last_active: DateTime<Utc>,
 }
 
 impl SoilSensor {
@@ -28,7 +29,7 @@ impl SoilSensor {
             light: None,
             battery: None,
             uptime: None,
-            last_active: SystemTime::now(),
+            last_active: Utc::now(),
         }
     }
     pub fn temp(&self) -> Option<f32> {
@@ -54,10 +55,13 @@ impl Dev for SoilSensor {
     fn dev_id(&self) -> String {
         format!("{:#08x}", self.device_sn)
     }
+    fn dev_sn(&self) -> u64 {
+        self.device_sn
+    }
     fn name(&self) -> Option<&str> {
         self.name.as_deref()
     }
-    fn last_active(&self) -> SystemTime {
+    fn last_active(&self) -> DateTime<Utc> {
         self.last_active
     }
     fn uptime(&self) -> Option<Duration> {
@@ -87,13 +91,9 @@ mod tests {
             temp: None,
             humidity: None,
             light: None,
-            battery: Some(SensorReading {
-                h: 2,
-                l: 400000,
-                timestamp: SystemTime::now(),
-            }),
+            battery: Some(SensorReading { h: 2, l: 400000 }),
             uptime: None,
-            last_active: SystemTime::now(),
+            last_active: Utc::now(),
         };
         assert_eq!(sensor.dev_id(), "0x12345678");
         assert_eq!(sensor.bat_pct(), Some(0.0));
@@ -103,11 +103,7 @@ mod tests {
     #[test]
     fn test_soil_sensor_temp() {
         let mut sensor = SoilSensor::new(0x12345678);
-        sensor.temp = Some(SensorReading {
-            h: 25,
-            l: 500000,
-            timestamp: SystemTime::now(),
-        });
+        sensor.temp = Some(SensorReading { h: 25, l: 500000 });
         assert_eq!(sensor.temp(), Some(25.5));
     }
 }
