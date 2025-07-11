@@ -13,6 +13,7 @@ pub struct TeLys {
     pub battery: Option<SensorReading>,
     pub uptime: Option<u32>,
     pub last_active: DateTime<Utc>,
+    pub fwver: Option<u32>,
 }
 
 impl TeLys {
@@ -25,6 +26,7 @@ impl TeLys {
             battery: None,
             uptime: None,
             last_active: Utc::now(),
+            fwver: None,
         }
     }
 
@@ -57,5 +59,9 @@ impl super::Dev for TeLys {
     }
     fn dev_type(&self) -> &'static str {
         "TeLys"
+    }
+
+    fn fwver(&self) -> Option<[u8; 4]> {
+        self.fwver.map(|v| v.to_be_bytes())
     }
 }

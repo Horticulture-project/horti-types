@@ -16,6 +16,7 @@ pub struct SoilSensor {
     pub battery: Option<SensorReading>,
     pub uptime: Option<u32>,
     pub last_active: DateTime<Utc>,
+    pub fwver_value: Option<u32>,
 }
 
 impl SoilSensor {
@@ -30,6 +31,7 @@ impl SoilSensor {
             battery: None,
             uptime: None,
             last_active: Utc::now(),
+            fwver_value: None,
         }
     }
     pub fn temp(&self) -> Option<f32> {
@@ -76,6 +78,9 @@ impl Dev for SoilSensor {
     fn dev_type(&self) -> &'static str {
         "Soil Sensor"
     }
+    fn fwver(&self) -> Option<[u8; 4]> {
+        self.fwver_value.map(|v| v.to_be_bytes())
+    }
 }
 #[cfg(test)]
 mod tests {
@@ -94,6 +99,7 @@ mod tests {
             battery: Some(SensorReading { h: 2, l: 400000 }),
             uptime: None,
             last_active: Utc::now(),
+            fwver_value: None,
         };
         assert_eq!(sensor.dev_id(), "0x12345678");
         assert_eq!(sensor.bat_pct(), Some(0.0));

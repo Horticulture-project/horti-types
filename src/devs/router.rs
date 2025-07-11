@@ -7,6 +7,7 @@ pub struct Router {
     pub name: Option<String>,
     pub uptime: Option<u32>,
     pub last_active: DateTime<Utc>,
+    pub fwver: Option<u32>,
 }
 impl Router {
     pub fn new(id: u64) -> Self {
@@ -15,6 +16,7 @@ impl Router {
             name: None,
             uptime: None,
             last_active: DateTime::from_timestamp(0, 0).unwrap_or_else(|| Utc::now()),
+            fwver: None,
         }
     }
     pub fn last_active(&self) -> DateTime<Utc> {
@@ -42,5 +44,9 @@ impl super::Dev for Router {
     }
     fn dev_type(&self) -> &'static str {
         "Router"
+    }
+
+    fn fwver(&self) -> Option<[u8; 4]> {
+        self.fwver.map(|v| v.to_be_bytes())
     }
 }
