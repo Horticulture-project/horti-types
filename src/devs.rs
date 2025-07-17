@@ -4,7 +4,7 @@ pub mod envsensor;
 pub mod hb;
 pub mod ledpanel;
 pub mod router;
-pub mod setting;
+
 pub mod soilsensor;
 pub mod telys;
 use envsensor::EnvSensor;
@@ -30,6 +30,9 @@ pub trait Dev {
     }
     fn dev_type(&self) -> &'static str;
     fn fwver(&self) -> Option<[u8; 4]> {
+        None
+    }
+    fn fwver_name(&self) -> Option<String> {
         None
     }
 }

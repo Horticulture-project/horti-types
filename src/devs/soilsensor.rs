@@ -17,6 +17,7 @@ pub struct SoilSensor {
     pub uptime: Option<u32>,
     pub last_active: DateTime<Utc>,
     pub fwver_value: Option<u32>,
+    pub fwver_name: Option<String>,
 }
 
 impl SoilSensor {
@@ -32,6 +33,7 @@ impl SoilSensor {
             uptime: None,
             last_active: Utc::now(),
             fwver_value: None,
+            fwver_name: None,
         }
     }
     pub fn temp(&self) -> Option<f32> {
@@ -81,6 +83,9 @@ impl Dev for SoilSensor {
     fn fwver(&self) -> Option<[u8; 4]> {
         self.fwver_value.map(|v| v.to_be_bytes())
     }
+    fn fwver_name(&self) -> Option<String> {
+        self.fwver_name.clone()
+    }
 }
 #[cfg(test)]
 mod tests {
@@ -100,6 +105,7 @@ mod tests {
             uptime: None,
             last_active: Utc::now(),
             fwver_value: None,
+            fwver_name: None,
         };
         assert_eq!(sensor.dev_id(), "0x12345678");
         assert_eq!(sensor.bat_pct(), Some(0.0));

@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use log::*;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -233,15 +234,11 @@ impl From<&str> for MeasurementType {
 #[repr(i32)]
 #[serde(into = "i32", from = "i32")]
 pub enum SensorChannel {
-    Shtc3,
-    CapSense,
     Other(u8),
 }
 impl From<u8> for SensorChannel {
     fn from(v: u8) -> Self {
         match v {
-            0 => SensorChannel::Shtc3,
-            1 => SensorChannel::CapSense,
             n => SensorChannel::Other(n),
         }
     }
@@ -257,9 +254,53 @@ impl From<i32> for SensorChannel {
 impl Into<i32> for SensorChannel {
     fn into(self) -> i32 {
         match self {
-            SensorChannel::Shtc3 => 0,
-            SensorChannel::CapSense => 1,
             SensorChannel::Other(v) => v as i32,
         }
+    }
+}
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[serde(rename_all = "camelCase", tag = "kind")]
+pub struct ApiMeasurements {
+    id: String,
+    current_item_count: usize,
+    updated: DateTime<Utc>,
+    items: Vec<Measurement>,
+}
+impl ApiMeasurements {
+    pub fn new(id: u64) -> Self {
+        Self {
+            items: vec![],
+            current_item_count: 0,
+            id: id.to_string(),
+            updated: Utc::now(),
+        }
+    }
+    pub fn from_vec(id: u64, items: Vec<Measurement>) -> Self {
+        let current_item_count = items.len();
+        Self {
+            items,
+            current_item_count,
+            id: id.to_string(),
+            updated: Utc::now(),
+        }
+    }
+    pub fn add_measurement(&mut self, measurement: Measurement) {
+        self.items.push(measurement);
+        self.current_item_count = self.items.len();
+    }
+    pub fn len(&self) -> usize {
+        self.current_item_count
+    }
+    pub fn as_slice(&self) -> &[Measurement] {
+        &self.items
+    }
+    pub fn into_vec(self) -> Vec<Measurement> {
+        self.items
+    }
+    pub fn id(&self) -> &str {
+        &self.id
+    }
+    pub fn updated(&self) -> DateTime<Utc> {
+        self.updated
     }
 }

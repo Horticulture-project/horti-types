@@ -14,6 +14,7 @@ pub struct TeLys {
     pub uptime: Option<u32>,
     pub last_active: DateTime<Utc>,
     pub fwver: Option<u32>,
+    pub fwver_name: Option<String>,
 }
 
 impl TeLys {
@@ -27,6 +28,7 @@ impl TeLys {
             uptime: None,
             last_active: Utc::now(),
             fwver: None,
+            fwver_name: None,
         }
     }
 
@@ -63,5 +65,8 @@ impl super::Dev for TeLys {
 
     fn fwver(&self) -> Option<[u8; 4]> {
         self.fwver.map(|v| v.to_be_bytes())
+    }
+    fn fwver_name(&self) -> Option<String> {
+        self.fwver_name.clone()
     }
 }

@@ -223,6 +223,31 @@ impl Into<(Vec<NetGraphEdge>, Vec<devs::DevInfo>)> for NetGraph {
         (self.edges, self.nodes)
     }
 }
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename = "Neighbor", rename_all = "camelCase", tag = "kind")]
+pub struct ApiNeighbors {
+    id: String,
+    current_item_count: usize,
+    items: Vec<Neighbor>,
+}
+impl ApiNeighbors {
+    pub fn new(nd: &[Neighbor], devid: u64) -> Self {
+        Self {
+            id: devid.to_string(),
+            current_item_count: nd.len(),
+            items: nd.to_vec(),
+        }
+    }
+    pub fn len(&self) -> usize {
+        self.items.len()
+    }
+    pub fn as_slice(&self) -> &[Neighbor] {
+        &self.items
+    }
+    pub fn into_vec(self) -> Vec<Neighbor> {
+        self.items
+    }
+}
 
 #[cfg(test)]
 mod test {

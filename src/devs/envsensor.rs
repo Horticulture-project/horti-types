@@ -12,6 +12,7 @@ pub struct EnvSensor {
     pub uptime: Option<u32>,
     pub last_active: DateTime<Utc>,
     pub fwver: Option<u32>,
+    pub fwver_name: Option<String>,
 }
 impl EnvSensor {
     pub fn new(id: u64) -> Self {
@@ -24,6 +25,7 @@ impl EnvSensor {
             uptime: None,
             last_active: Utc::now(),
             fwver: None,
+            fwver_name: None,
         }
     }
     pub fn temp(&self) -> Option<f32> {
@@ -58,5 +60,8 @@ impl super::Dev for EnvSensor {
 
     fn fwver(&self) -> Option<[u8; 4]> {
         self.fwver.map(|v| v.to_be_bytes())
+    }
+    fn fwver_name(&self) -> Option<String> {
+        self.fwver_name.clone()
     }
 }
