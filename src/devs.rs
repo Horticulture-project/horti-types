@@ -105,6 +105,20 @@ pub enum Device {
     Led(LedPanel),
     TeLys(TeLys),
 }
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct NameChange {
+
+    name: String,
+}
+impl NameChange {
+    pub fn new(_devid: u64, name: &str) -> Self {
+        Self {  name: name.to_string() }
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
 pub struct SensorReading {
     pub h: i32,

@@ -47,6 +47,7 @@ pub enum ItemTypes {
     Neighbor(ApiNeighbors),
     OtNetConfig(Vec<OtNetConfig>),
     HeartBeat(crate::devs::hb::HeartBeat),
+    NameChange(crate::devs::NameChange),
 }
 impl ItemTypes {
     pub fn len(&self) -> usize {
@@ -59,6 +60,7 @@ impl ItemTypes {
             ItemTypes::Neighbor(neighbors) => neighbors.len(),
             ItemTypes::OtNetConfig(otconfig) => otconfig.len(),
             ItemTypes::SettingTypes(setting_types) => setting_types.len(),
+            ItemTypes::NameChange(_) => 1,
         }
     }
     pub fn kind(&self) -> &str {
@@ -71,6 +73,7 @@ impl ItemTypes {
             ItemTypes::OtNetConfig(_) => "OtNetConfig",
             ItemTypes::HeartBeat(_) => "HeartBeat",
             ItemTypes::SettingTypes(_) => "SettingType",
+            ItemTypes::NameChange(_) => "NameChange",
         }
     }
 }
