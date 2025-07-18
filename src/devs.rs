@@ -35,6 +35,9 @@ pub trait Dev {
     fn fwver_name(&self) -> Option<String> {
         None
     }
+    fn status(&self) -> crate::devs::hb::DevStatus {
+        crate::devs::hb::DevStatus::Unknown(0)
+    }
 }
 pub trait Battery {
     fn battery(&self) -> Option<f32> {

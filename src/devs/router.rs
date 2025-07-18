@@ -9,6 +9,8 @@ pub struct Router {
     pub last_active: DateTime<Utc>,
     pub fwver: Option<u32>,
     pub fwver_name: Option<String>,
+    #[serde(default)]
+    pub status: crate::devs::hb::DevStatus,
 }
 impl Router {
     pub fn new(id: u64) -> Self {
@@ -19,6 +21,7 @@ impl Router {
             last_active: DateTime::from_timestamp(0, 0).unwrap_or_else(|| Utc::now()),
             fwver: None,
             fwver_name: None,
+            status: crate::devs::hb::DevStatus::Unknown(0),
         }
     }
     pub fn last_active(&self) -> DateTime<Utc> {
@@ -53,5 +56,8 @@ impl super::Dev for Router {
     }
     fn fwver_name(&self) -> Option<String> {
         self.fwver_name.clone()
+    }
+    fn status(&self) -> crate::devs::hb::DevStatus {
+        self.status
     }
 }

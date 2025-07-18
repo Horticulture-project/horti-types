@@ -18,6 +18,8 @@ pub struct SoilSensor {
     pub last_active: DateTime<Utc>,
     pub fwver_value: Option<u32>,
     pub fwver_name: Option<String>,
+    #[serde(default)]
+    pub status: crate::devs::hb::DevStatus,
 }
 
 impl SoilSensor {
@@ -34,6 +36,7 @@ impl SoilSensor {
             last_active: Utc::now(),
             fwver_value: None,
             fwver_name: None,
+            status: crate::devs::hb::DevStatus::Unknown(0),
         }
     }
     pub fn temp(&self) -> Option<f32> {
@@ -86,6 +89,9 @@ impl Dev for SoilSensor {
     fn fwver_name(&self) -> Option<String> {
         self.fwver_name.clone()
     }
+    fn status(&self) -> crate::devs::hb::DevStatus {
+        self.status
+    }
 }
 #[cfg(test)]
 mod tests {
@@ -106,6 +112,7 @@ mod tests {
             last_active: Utc::now(),
             fwver_value: None,
             fwver_name: None,
+            status: crate::devs::hb::DevStatus::RunningOk,
         };
         assert_eq!(sensor.dev_id(), "0x12345678");
         assert_eq!(sensor.bat_pct(), Some(0.0));

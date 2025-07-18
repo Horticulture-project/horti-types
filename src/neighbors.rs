@@ -89,7 +89,7 @@ impl Neighbor {
         self.child = child;
     }
     pub fn from_payload(payload: &[u8]) -> Option<Neighbor> {
-        if payload.len() == 8 {
+        if payload.len() == size_of::<NeighborDataZephyr>() {
             Some(Neighbor {
                 rloc16: u16::from_le_bytes(payload[0..2].try_into().ok()?),
                 m_link_quality: u8::from_le_bytes([payload[2]]),
@@ -104,6 +104,13 @@ impl Neighbor {
             None
         }
     }
+}
+pub fn neighbors_from_payload(payload: &[u8]) -> Result<Vec<Neighbor>, &str> {
+    if payload.len() % size_of::<NeighborDataZephyr>() !=0 {
+        return Err("Invalid package length for Neighbordata")
+    }
+    let ret = payload.chunks(size_of::<NeighborDataZephyr>()).map(|n|Neighbor::from_payload(n).ok_or("Unable to parse Neighbor from package")).collect::<Result<Vec<_>, _>>()?;
+    Ok(ret)
 }
 
 #[cfg(feature = "dbus")]
@@ -159,7 +166,7 @@ impl dbus::arg::Arg for Neighbor {
         Signature::from("(tuquuyyyqqqbbbb)")
     }
 }
-#[cfg(test)]
+
 #[derive(Serialize, Deserialize, PartialEq, Hash, Eq, Debug, Clone)]
 #[repr(C)]
 pub struct NeighborDataZephyr {

@@ -15,6 +15,8 @@ pub struct TeLys {
     pub last_active: DateTime<Utc>,
     pub fwver: Option<u32>,
     pub fwver_name: Option<String>,
+    #[serde(default)]
+    pub status: crate::devs::hb::DevStatus,
 }
 
 impl TeLys {
@@ -29,6 +31,7 @@ impl TeLys {
             last_active: Utc::now(),
             fwver: None,
             fwver_name: None,
+            status: crate::devs::hb::DevStatus::Unknown(0),
         }
     }
 
@@ -68,5 +71,8 @@ impl super::Dev for TeLys {
     }
     fn fwver_name(&self) -> Option<String> {
         self.fwver_name.clone()
+    }
+    fn status(&self) -> crate::devs::hb::DevStatus {
+        self.status
     }
 }
