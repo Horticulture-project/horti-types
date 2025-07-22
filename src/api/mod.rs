@@ -48,6 +48,8 @@ pub enum ItemTypes {
     OtNetConfig(Vec<OtNetConfig>),
     HeartBeat(crate::devs::hb::HeartBeat),
     NameChange(crate::devs::NameChange),
+    DescriptionChange(crate::devs::DescriptionChange),
+    DeviceInfo(crate::devs::DeviceInfo),
 }
 impl ItemTypes {
     pub fn len(&self) -> usize {
@@ -61,6 +63,8 @@ impl ItemTypes {
             ItemTypes::OtNetConfig(otconfig) => otconfig.len(),
             ItemTypes::SettingTypes(setting_types) => setting_types.len(),
             ItemTypes::NameChange(_) => 1,
+            ItemTypes::DescriptionChange(_) => 1,
+            ItemTypes::DeviceInfo(_) => 1,
         }
     }
     pub fn kind(&self) -> &str {
@@ -74,6 +78,8 @@ impl ItemTypes {
             ItemTypes::HeartBeat(_) => "HeartBeat",
             ItemTypes::SettingTypes(_) => "SettingType",
             ItemTypes::NameChange(_) => "NameChange",
+            ItemTypes::DescriptionChange(_) => "DescriptionChange",
+            ItemTypes::DeviceInfo(_) => "DeviceInfo",
         }
     }
 }

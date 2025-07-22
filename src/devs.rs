@@ -61,6 +61,7 @@ pub enum DeviceType {
     GetshopLock,
     StaySerosModule,
     StayIdlock,
+    TeLys,
 }
 impl Into<&'static str> for DeviceType {
     fn into(self) -> &'static str {
@@ -76,6 +77,7 @@ impl Into<&'static str> for DeviceType {
             DeviceType::GetshopLock => "GetShop Module 1.9",
             DeviceType::StaySerosModule => "StaySeros Module",
             DeviceType::StayIdlock => "StayIdlock",
+            DeviceType::TeLys => "TeLys",
         }
     }
 }
@@ -93,7 +95,8 @@ impl From<&str> for DeviceType {
             "GetshopLock" => DeviceType::GetshopLock,
             "StaySerosModule" => DeviceType::StaySerosModule,
             "StayIdlock" => DeviceType::StayIdlock,
-            _ => panic!("Unknown device type: {}", s),
+            "TeLys" => DeviceType::TeLys,
+            _ => DeviceType::Unknown,
         }
     }
 }
@@ -107,16 +110,64 @@ pub enum Device {
 }
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct NameChange {
-
     name: String,
+    description: Option<String>,
 }
 impl NameChange {
     pub fn new(_devid: u64, name: &str) -> Self {
-        Self {  name: name.to_string() }
+        Self {
+            name: name.to_string(),
+            description: None,
+        }
+    }
+
+    pub fn new_with_description(_devid: u64, name: &str, description: Option<&str>) -> Self {
+        Self {
+            name: name.to_string(),
+            description: description.map(|d| d.to_string()),
+        }
     }
 
     pub fn name(&self) -> &str {
         &self.name
+    }
+    pub fn description(&self) -> Option<&str> {
+        self.description.as_deref()
+    }
+    pub fn set_description(&mut self, description: String) {
+        self.description = Some(description);
+    }
+}
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DescriptionChange {
+    description: String,
+}
+impl DescriptionChange {
+    pub fn new(_devid: u64, description: &str) -> Self {
+        Self {
+            description: description.to_string(),
+        }
+    }
+
+    pub fn description(&self) -> &str {
+        &self.description
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DeviceInfo {
+    pub device_id: String,
+    pub name: Option<String>,
+    pub description: Option<String>,
+}
+
+impl DeviceInfo {
+    pub fn new(device_id: String, name: Option<String>, description: Option<String>) -> Self {
+        Self {
+            device_id,
+            name,
+            description,
+        }
     }
 }
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]

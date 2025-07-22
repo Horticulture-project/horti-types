@@ -3,7 +3,12 @@ pub fn get_neighbor_json(idx: usize) -> Value {
     match idx {
         _ => json!({
             "apiVersion": "1.0",
-            "data": [
+            "data": {
+                "kind":"Neighbors",
+                "id":"1337",
+                "currentItemCount":1,
+                "updated":"2025-07-15T17:16:55.698860161Z",
+                "items": [
             {
                     "kind": "Neighbor",
                     "rloc16": 1004,
@@ -83,6 +88,6 @@ pub fn get_neighbor_json(idx: usize) -> Value {
             }
 
             ]
-        }),
+        }}),
     }
 }
