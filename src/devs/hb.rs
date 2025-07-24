@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use std::fmt::Display;
+
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct HeartBeatZephyr {
     pub id: i64,
@@ -205,6 +206,24 @@ impl Display for DevType {
         }
     }
 }
+impl Into<&'static str> for DevType {
+    fn into(self) -> &'static str {
+        match self {
+            DevType::Unknown(_n) => "Unknown device",
+            DevType::BorderRouter => "BorderRouter",
+            DevType::HortiLed => "Horticulture: LED-panel",
+            DevType::HortiPlantSensor => "Horticulture: Soil Sensor",
+            DevType::WeatherStation => "Weather Station",
+            DevType::EnvironmentSensor => "Environment sensor",
+            DevType::GarageDoor => "Garage door control",
+            DevType::GetshopModule => "GetShop Module 1.5",
+            DevType::GetshopLock => "GetShop Module 1.9",
+            DevType::StaySerosModule => "StaySeros Module",
+            DevType::StayIdlock => "StayIdlock",
+            DevType::TeLys => "TeLys",
+        }
+    }
+}
 impl From<&str> for DevType {
     fn from(item: &str) -> Self {
         match item {
@@ -231,7 +250,7 @@ impl From<DevStatus> for i32 {
     }
 }
 // enum status_code // From zephyr code
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(PartialEq, Debug, Clone, Copy, Eq, Hash, PartialOrd, Ord)]
 pub enum DevStatus {
     Unknown(u8),
     Error,
@@ -244,10 +263,8 @@ pub enum DevStatus {
 impl DevStatus {
     pub fn map_active(&self, last_active: DateTime<Utc>) -> Self {
         match self {
-            _ if last_active < Utc::now() - chrono::Duration::hours(5) => {
-                DevStatus::Offline
-            }
-            status => *status
+            _ if last_active < Utc::now() - chrono::Duration::hours(5) => DevStatus::Offline,
+            status => *status,
         }
     }
 }

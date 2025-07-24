@@ -48,8 +48,8 @@ pub enum ItemTypes {
     OtNetConfig(Vec<OtNetConfig>),
     HeartBeat(crate::devs::hb::HeartBeat),
     NameChange(crate::devs::NameChange),
-    DescriptionChange(crate::devs::DescriptionChange),
-    DeviceInfo(crate::devs::DeviceInfo),
+    DescriptionChange(crate::devs::DescriptionChange), // remove
+    DeviceInfo(crate::devs::DevInfo),
 }
 impl ItemTypes {
     pub fn len(&self) -> usize {

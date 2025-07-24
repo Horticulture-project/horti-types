@@ -1,6 +1,8 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
+
+use crate::devices_connected::DevicesConnectedTypes;
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct LedPanel {
     id: u64,
@@ -10,6 +12,7 @@ pub struct LedPanel {
     pub fwver: Option<u32>,
     pub fwver_name: Option<String>,
     pub status: crate::devs::hb::DevStatus,
+    connected_devices: Vec<(DevicesConnectedTypes, u16)>,
 }
 impl LedPanel {
     pub fn new(
@@ -19,6 +22,7 @@ impl LedPanel {
         last_active: DateTime<Utc>,
         fwver: Option<u32>,
         fwver_name: Option<String>,
+        connected_devices: Vec<(DevicesConnectedTypes, u16)>,
         status: crate::devs::hb::DevStatus,
     ) -> Self {
         Self {
@@ -29,7 +33,11 @@ impl LedPanel {
             fwver,
             fwver_name,
             status,
+            connected_devices,
         }
+    }
+    pub fn get_connected_devices(&self) -> &[(DevicesConnectedTypes, u16)] {
+        &self.connected_devices
     }
 }
 impl super::Dev for LedPanel {

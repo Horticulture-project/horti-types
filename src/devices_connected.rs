@@ -56,7 +56,7 @@ impl ApiDevicesConnected {
         &self.connected_devices
     }
 }
-#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize, Hash, Eq)]
 pub struct DevicesConnected {
     device_id: DevicesConnectedTypes,
     idx: u16,
@@ -77,8 +77,11 @@ impl DevicesConnected {
     pub fn idx(&self) -> u16 {
         self.idx
     }
+    pub fn to_tuple(&self) -> (DevicesConnectedTypes, u16) {
+        (self.device_id, self.idx)
+    }
 }
-#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize, Hash, Eq)]
 #[repr(u16)]
 #[serde(into = "u16", from = "u16")]
 pub enum DevicesConnectedTypes {

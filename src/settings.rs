@@ -2,6 +2,44 @@ use bincode::Encode;
 use chrono::{DateTime, Utc};
 use derivative::Derivative;
 use serde::{Deserialize, Serialize};
+// enum settings_list {
+//     DEV_TYPE = 0,
+//     FW_BRANCH = 1,
+//     NETWORK_ID = 9,
+//     DIM_TIME = 10,
+//     TIME_ON = 11,
+//     TIME_OFF = 12,
+//     PWM_VAL = 13,
+//     LED_MODE = 14,
+//     LOG_INTERVAL = 20,
+//     DEFAULT_POS = 30,
+//     DEFAULT_SPEED = 40,
+
+//     DOORLOCK_MODE = 50,
+//     DOORLOCK_OPEN_TIME = 52,
+//     DOORLOCK_CODE = 53,
+//     DOORLOCK_CODE_VALID = 54,
+// };
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize, Hash, Eq)]
+#[repr(i32)]
+pub enum SettingsType {
+    DevType = 0,
+    FwBranch = 1,
+    NetworkId = 9,
+    DimTime = 10,
+    TimeOn = 11,
+    TimeOff = 12,
+    PwmVal = 13,
+    LedMode = 14,
+    LogInterval = 20,
+    DefaultPos = 30,
+    DefaultSpeed = 40,
+    DoorlockMode = 50,
+    DoorlockOpenTime = 52,
+    DoorlockCode = 53,
+    DoorlockCodeValid = 54,
+    Unknown(i32),
+}
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Default, Derivative)]
 #[derivative(PartialOrd, Ord, Eq)]
 pub struct DevSetting {
@@ -32,6 +70,26 @@ impl DevSetting {
     }
     pub fn value(&self) -> i32 {
         self.value
+    }
+    pub fn to_type(&self) -> SettingsType {
+        match self.settings_type {
+            0 => SettingsType::DevType,
+            1 => SettingsType::FwBranch,
+            9 => SettingsType::NetworkId,
+            10 => SettingsType::DimTime,
+            11 => SettingsType::TimeOn,
+            12 => SettingsType::TimeOff,
+            13 => SettingsType::PwmVal,
+            14 => SettingsType::LedMode,
+            20 => SettingsType::LogInterval,
+            30 => SettingsType::DefaultPos,
+            40 => SettingsType::DefaultSpeed,
+            50 => SettingsType::DoorlockMode,
+            52 => SettingsType::DoorlockOpenTime,
+            53 => SettingsType::DoorlockCode,
+            54 => SettingsType::DoorlockCodeValid,
+            n => SettingsType::Unknown(n),
+        }
     }
 }
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]

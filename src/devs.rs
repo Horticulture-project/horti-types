@@ -12,9 +12,14 @@ use ledpanel::LedPanel;
 use router::Router;
 use soilsensor::SoilSensor;
 use telys::TeLys;
+
+use crate::{
+    devices_connected::DevicesConnected,
+    devs::hb::{DevStatus, DevType},
+};
 pub trait Dev {
     fn dev_id(&self) -> String {
-        format!("{:016x}", self.dev_sn())
+        format!("{:08x}", self.dev_sn())
     }
     fn dev_sn(&self) -> u64;
     fn name(&self) -> Option<&str>;
@@ -48,58 +53,6 @@ pub trait Battery {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize, Hash, Eq)]
-pub enum DeviceType {
-    Unknown,
-    BorderRouter,
-    HortiLed,
-    SoilSensor,
-    WeatherStation,
-    EnvironmentSensor,
-    GarageDoor,
-    GetshopModule,
-    GetshopLock,
-    StaySerosModule,
-    StayIdlock,
-    TeLys,
-}
-impl Into<&'static str> for DeviceType {
-    fn into(self) -> &'static str {
-        match self {
-            DeviceType::Unknown => "Unknown device",
-            DeviceType::BorderRouter => "BorderRouter",
-            DeviceType::HortiLed => "Horticulture: LED-panel",
-            DeviceType::SoilSensor => "Horticulture: Soil Sensor",
-            DeviceType::WeatherStation => "Weather Station",
-            DeviceType::EnvironmentSensor => "Environment sensor",
-            DeviceType::GarageDoor => "Garage door control",
-            DeviceType::GetshopModule => "GetShop Module 1.5",
-            DeviceType::GetshopLock => "GetShop Module 1.9",
-            DeviceType::StaySerosModule => "StaySeros Module",
-            DeviceType::StayIdlock => "StayIdlock",
-            DeviceType::TeLys => "TeLys",
-        }
-    }
-}
-impl From<&str> for DeviceType {
-    fn from(s: &str) -> Self {
-        match s {
-            "UNKNOWN" => DeviceType::Unknown,
-            "BorderRouter" => DeviceType::BorderRouter,
-            "HortiLed" => DeviceType::HortiLed,
-            "HortiPlantSensor" => DeviceType::SoilSensor,
-            "WeatherStation" => DeviceType::WeatherStation,
-            "EnvironmentSensor" => DeviceType::EnvironmentSensor,
-            "GarageDoor" => DeviceType::GarageDoor,
-            "GetshopModule" => DeviceType::GetshopModule,
-            "GetshopLock" => DeviceType::GetshopLock,
-            "StaySerosModule" => DeviceType::StaySerosModule,
-            "StayIdlock" => DeviceType::StayIdlock,
-            "TeLys" => DeviceType::TeLys,
-            _ => DeviceType::Unknown,
-        }
-    }
-}
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub enum Device {
     Soil(SoilSensor),
@@ -154,22 +107,6 @@ impl DescriptionChange {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct DeviceInfo {
-    pub device_id: String,
-    pub name: Option<String>,
-    pub description: Option<String>,
-}
-
-impl DeviceInfo {
-    pub fn new(device_id: String, name: Option<String>, description: Option<String>) -> Self {
-        Self {
-            device_id,
-            name,
-            description,
-        }
-    }
-}
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
 pub struct SensorReading {
     pub h: i32,
@@ -244,12 +181,32 @@ pub struct DevInfo {
     pub dev_sn: u64,
     pub name: Option<String>,
     pub rloc16: u16,
+    pub status: DevStatus,
     pub last_active: DateTime<Utc>,
-    pub dev_type: DeviceType,
-    pub fwver: Option<Vec<u8>>,
+    pub dev_type: DevType,
+    pub fwver: Option<u32>,
     pub fwver_name: Option<String>,
     pub uptime: Option<i64>,
+    pub connected_devices: Vec<DevicesConnected>,
 }
+impl DevInfo {
+    pub fn uptime(&self) -> Option<u32> {
+        self.uptime.map(|u| u as u32)
+    }
+    pub fn set_fwver(&mut self, fwver: u32) {
+        self.fwver = Some(fwver);
+    }
+    pub fn set_fwtag(&mut self, fwtag: String) {
+        self.fwver_name = Some(fwtag);
+    }
+    pub fn status(&self) -> DevStatus {
+        self.status.map_active(self.last_active())
+    }
+    pub fn set_connected_devices(&mut self, connected_devices: Vec<DevicesConnected>) {
+        self.connected_devices = connected_devices;
+    }
+}
+
 impl Dev for DevInfo {
     fn dev_sn(&self) -> u64 {
         self.dev_sn
@@ -264,10 +221,7 @@ impl Dev for DevInfo {
         self.dev_type.into()
     }
     fn fwver(&self) -> Option<[u8; 4]> {
-        match self.fwver {
-            Some(ref fw) if fw.len() == 4 => fw.as_slice().try_into().ok(),
-            _ => None,
-        }
+        self.fwver.map(|v| v.to_be_bytes())
     }
     fn fwver_name(&self) -> Option<String> {
         self.fwver_name.clone()
