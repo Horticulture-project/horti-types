@@ -238,6 +238,7 @@ impl Dev for Device {
         }
     }
 }
+
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, Hash, Eq)]
 pub struct DevInfo {
     pub dev_sn: u64,
@@ -246,6 +247,7 @@ pub struct DevInfo {
     pub last_active: DateTime<Utc>,
     pub dev_type: DeviceType,
     pub fwver: Option<Vec<u8>>,
+    pub fwver_name: Option<String>,
     pub uptime: Option<i64>,
 }
 impl Dev for DevInfo {
@@ -266,5 +268,8 @@ impl Dev for DevInfo {
             Some(ref fw) if fw.len() == 4 => fw.as_slice().try_into().ok(),
             _ => None,
         }
+    }
+    fn fwver_name(&self) -> Option<String> {
+        self.fwver_name.clone()
     }
 }

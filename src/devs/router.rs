@@ -4,24 +4,31 @@ use std::time::Duration;
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct Router {
     id: u64,
-    pub name: Option<String>,
-    pub uptime: Option<u32>,
-    pub last_active: DateTime<Utc>,
-    pub fwver: Option<u32>,
-    pub fwver_name: Option<String>,
-    #[serde(default)]
-    pub status: crate::devs::hb::DevStatus,
+    name: Option<String>,
+    uptime: Option<u32>,
+    last_active: DateTime<Utc>,
+    fwver: Option<u32>,
+    fwver_name: Option<String>,
+    status: crate::devs::hb::DevStatus,
 }
 impl Router {
-    pub fn new(id: u64) -> Self {
+    pub fn new(
+        id: u64,
+        name: Option<String>,
+        uptime: Option<u32>,
+        last_active: DateTime<Utc>,
+        fwver: Option<u32>,
+        fwver_name: Option<String>,
+        status: crate::devs::hb::DevStatus,
+    ) -> Self {
         Self {
             id,
-            name: None,
-            uptime: None,
-            last_active: DateTime::from_timestamp(0, 0).unwrap_or_else(|| Utc::now()),
-            fwver: None,
-            fwver_name: None,
-            status: crate::devs::hb::DevStatus::Unknown(0),
+            name,
+            uptime,
+            last_active,
+            fwver,
+            fwver_name,
+            status,
         }
     }
     pub fn last_active(&self) -> DateTime<Utc> {
@@ -58,6 +65,6 @@ impl super::Dev for Router {
         self.fwver_name.clone()
     }
     fn status(&self) -> crate::devs::hb::DevStatus {
-        self.status
+        self.status.map_active(self.last_active)
     }
 }

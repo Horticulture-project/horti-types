@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use std::fmt::Display;
@@ -239,6 +240,16 @@ pub enum DevStatus {
     Flashing,
     Rebooting,
     Offline,
+}
+impl DevStatus {
+    pub fn map_active(&self, last_active: DateTime<Utc>) -> Self {
+        match self {
+            _ if last_active < Utc::now() - chrono::Duration::hours(5) => {
+                DevStatus::Offline
+            }
+            status => *status
+        }
+    }
 }
 impl Serialize for DevStatus {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

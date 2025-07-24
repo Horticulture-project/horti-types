@@ -1,4 +1,4 @@
-use crate::devs::SensorReading;
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
@@ -6,50 +6,41 @@ use std::time::Duration;
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TeLys {
-    pub name: Option<String>,
-    pub device_sn: u64,
-    pub temp: Option<SensorReading>,
-    pub light: Option<SensorReading>,
-    pub battery: Option<SensorReading>,
-    pub uptime: Option<u32>,
-    pub last_active: DateTime<Utc>,
-    pub fwver: Option<u32>,
-    pub fwver_name: Option<String>,
+    name: Option<String>,
+    device_sn: u64,
+    battery: Option<f32>,
+    uptime: Option<u32>,
+    last_active: DateTime<Utc>,
+    fwver: Option<u32>,
+    fwver_name: Option<String>,
     #[serde(default)]
-    pub status: crate::devs::hb::DevStatus,
+    status: crate::devs::hb::DevStatus,
 }
 
 impl TeLys {
-    pub fn new(id: u64) -> Self {
+    pub fn new(device_sn: u64, name: Option<String>, uptime: Option<u32>, last_active: DateTime<Utc>, fwver: Option<u32>, fwver_name: Option<String>, status: crate::devs::hb::DevStatus, battery: Option<f32>) -> Self {
         Self {
-            name: None,
-            device_sn: id,
-            temp: None,
-            light: None,
-            battery: None,
-            uptime: None,
-            last_active: Utc::now(),
-            fwver: None,
-            fwver_name: None,
-            status: crate::devs::hb::DevStatus::Unknown(0),
+            name,
+            device_sn,
+            uptime,
+            last_active,
+            fwver,
+            fwver_name,
+            status,
+            battery,
         }
     }
 
-    pub fn temp(&self) -> Option<f32> {
-        Some(self.temp?.to_float())
+pub fn set_battery(&mut self, battery: Option<f32>) {
+        self.battery = battery;
     }
-
-    pub fn light(&self) -> Option<f32> {
-        Some(self.light?.to_float())
-    }
-
     pub fn uptime(&self) -> Option<Duration> {
         Some(Duration::from_secs(self.uptime? as u64))
     }
-
-    pub fn battery(&self) -> Option<f32> {
-        Some(self.battery?.to_float())
+pub fn battery(&self) -> Option<f32> {
+        self.battery
     }
+
 }
 impl super::Dev for TeLys {
     fn name(&self) -> Option<&str> {

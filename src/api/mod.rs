@@ -1,7 +1,7 @@
 pub mod post;
 use std::collections::HashMap;
 
-use crate::devices_connected::DevicesConnected;
+use crate::devices_connected::ApiDevicesConnected;
 
 use crate::measurement::ApiMeasurements;
 use crate::neighbors::ApiNeighbors;
@@ -41,7 +41,7 @@ pub struct JsonMessage {
 pub enum ItemTypes {
     Settings(ApiDevSettings),
     SettingTypes(ApiSettingTypes),
-    ConnectedDevices(DevicesConnected),
+    ConnectedDevices(ApiDevicesConnected),
     OtNet(Vec<OtNetwork>),
     Measurement(ApiMeasurements),
     Neighbor(ApiNeighbors),

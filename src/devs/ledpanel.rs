@@ -9,19 +9,26 @@ pub struct LedPanel {
     pub last_active: DateTime<Utc>,
     pub fwver: Option<u32>,
     pub fwver_name: Option<String>,
-    #[serde(default)]
     pub status: crate::devs::hb::DevStatus,
 }
 impl LedPanel {
-    pub fn new(id: u64) -> Self {
+    pub fn new(
+        id: u64,
+        name: Option<String>,
+        uptime: Option<u32>,
+        last_active: DateTime<Utc>,
+        fwver: Option<u32>,
+        fwver_name: Option<String>,
+        status: crate::devs::hb::DevStatus,
+    ) -> Self {
         Self {
             id,
-            name: None,
-            uptime: None,
-            last_active: Utc::now(),
-            fwver: None,
-            fwver_name: None,
-            status: crate::devs::hb::DevStatus::Unknown(0),
+            name,
+            uptime,
+            last_active,
+            fwver,
+            fwver_name,
+            status,
         }
     }
 }
@@ -50,6 +57,6 @@ impl super::Dev for LedPanel {
         self.fwver_name.clone()
     }
     fn status(&self) -> crate::devs::hb::DevStatus {
-        self.status
+        self.status.map_active(self.last_active)
     }
 }

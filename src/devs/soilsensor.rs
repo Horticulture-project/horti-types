@@ -7,43 +7,81 @@ use std::time::Duration;
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SoilSensor {
-    pub name: Option<String>,
-    pub device_sn: u64,
-    pub soil_moisture: Option<SensorReading>,
-    pub temp: Option<SensorReading>,
-    pub humidity: Option<SensorReading>,
-    pub light: Option<SensorReading>,
-    pub battery: Option<SensorReading>,
-    pub uptime: Option<u32>,
-    pub last_active: DateTime<Utc>,
-    pub fwver_value: Option<u32>,
-    pub fwver_name: Option<String>,
+    name: Option<String>,
+    device_sn: u64,
+    soil_moisture: Option<SensorReading>,
+    temp: Option<SensorReading>,
+    humidity: Option<SensorReading>,
+    light: Option<SensorReading>,
+    battery: Option<SensorReading>,
+    uptime: Option<u32>,
+    last_active: DateTime<Utc>,
+    fwver_value: Option<u32>,
+    fwver_name: Option<String>,
     #[serde(default)]
-    pub status: crate::devs::hb::DevStatus,
+    status: crate::devs::hb::DevStatus,
 }
 
 impl SoilSensor {
-    pub fn new(id: u64) -> Self {
+    pub fn new(
+        id: u64,
+        name: Option<String>,
+        last_active: DateTime<Utc>,
+        fwver_value: Option<u32>,
+        fwver_name: Option<String>,
+        status: crate::devs::hb::DevStatus,
+        uptime: Option<u32>,
+    ) -> Self {
         Self {
-            name: None,
+            name,
             device_sn: id,
             soil_moisture: None,
             temp: None,
             humidity: None,
             light: None,
             battery: None,
-            uptime: None,
-            last_active: Utc::now(),
-            fwver_value: None,
-            fwver_name: None,
-            status: crate::devs::hb::DevStatus::Unknown(0),
+            uptime,
+            last_active,
+            fwver_value,
+            fwver_name,
+            status,
         }
+    }
+    pub fn set_soil_moisture(&mut self, soil_moisture: SensorReading) {
+        self.soil_moisture = Some(soil_moisture);
+    }
+    pub fn set_temp(&mut self, temp: SensorReading) {
+        self.temp = Some(temp);
+    }
+    pub fn set_humidity(&mut self, humidity: SensorReading) {
+        self.humidity = Some(humidity);
+    }
+    pub fn set_light(&mut self, light: SensorReading) {
+        self.light = Some(light);
+    }
+    pub fn set_battery(&mut self, battery: SensorReading) {
+        self.battery = Some(battery);
     }
     pub fn temp(&self) -> Option<f32> {
         Some(self.temp?.to_float())
     }
     pub fn humidity(&self) -> Option<f32> {
         Some(self.humidity?.to_float())
+    }
+    pub fn light(&self) -> Option<f32> {
+        Some(self.light?.to_float())
+    }
+    pub fn soil_moisture(&self) -> Option<f32> {
+        Some(self.soil_moisture?.to_float())
+    }
+    pub fn battery(&self) -> Option<f32> {
+        Some(self.battery?.to_float())
+    }
+    pub fn fwver(&self) -> Option<u32> {
+        self.fwver_value
+    }
+    pub fn fwver_name(&self) -> Option<&str> {
+        self.fwver_name.as_deref()
     }
     pub fn uptime(&self) -> Option<Duration> {
         Some(Duration::from_secs(self.uptime? as u64))
@@ -121,8 +159,16 @@ mod tests {
 
     #[test]
     fn test_soil_sensor_temp() {
-        let mut sensor = SoilSensor::new(0x12345678);
-        sensor.temp = Some(SensorReading { h: 25, l: 500000 });
+        let mut sensor = SoilSensor::new(
+            0x12345678,
+            None,
+            Utc::now(),
+            None,
+            None,
+            crate::devs::hb::DevStatus::RunningOk,
+            None,
+        );
+        sensor.set_temp(SensorReading { h: 25, l: 500000 });
         assert_eq!(sensor.temp(), Some(25.5));
     }
 }
