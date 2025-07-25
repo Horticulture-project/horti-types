@@ -71,7 +71,7 @@ impl DevSetting {
     pub fn value(&self) -> i32 {
         self.value
     }
-    pub fn to_type(&self) -> SettingsType {
+    pub fn settings_type(&self) -> SettingsType {
         match self.settings_type {
             0 => SettingsType::DevType,
             1 => SettingsType::FwBranch,

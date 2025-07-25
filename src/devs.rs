@@ -62,6 +62,7 @@ pub enum Device {
     TeLys(TeLys),
 }
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", tag = "kind")]
 pub struct NameChange {
     name: String,
     description: Option<String>,
@@ -177,6 +178,7 @@ impl Dev for Device {
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, Hash, Eq)]
+#[serde( rename_all = "camelCase", tag = "kind")]
 pub struct DevInfo {
     pub dev_sn: u64,
     pub name: Option<String>,

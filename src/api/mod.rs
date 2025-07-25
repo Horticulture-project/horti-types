@@ -46,10 +46,11 @@ pub enum ItemTypes {
     Measurement(ApiMeasurements),
     Neighbor(ApiNeighbors),
     OtNetConfig(Vec<OtNetConfig>),
+    DeviceInfo(crate::devs::DevInfo),
     HeartBeat(crate::devs::hb::HeartBeat),
     NameChange(crate::devs::NameChange),
     DescriptionChange(crate::devs::DescriptionChange), // remove
-    DeviceInfo(crate::devs::DevInfo),
+    
 }
 impl ItemTypes {
     pub fn len(&self) -> usize {
