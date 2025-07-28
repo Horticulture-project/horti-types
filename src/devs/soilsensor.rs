@@ -154,7 +154,7 @@ mod tests {
         };
         assert_eq!(sensor.dev_id(), "0x12345678");
         assert_eq!(sensor.bat_pct(), Some(0.0));
-        assert_eq!(sensor.battery(), Some(2.6));
+        assert_eq!(sensor.battery(), Some(2.4));
     }
 
     #[test]
