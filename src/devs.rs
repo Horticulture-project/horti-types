@@ -64,26 +64,30 @@ pub enum Device {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 pub struct NameChange {
-    name: String,
+    name: Option<String>,
     description: Option<String>,
 }
 impl NameChange {
-    pub fn new(_devid: u64, name: &str) -> Self {
+    pub fn new(_devid: u64, name: String) -> Self {
         Self {
-            name: name.to_string(),
+            name: Some(name),
             description: None,
         }
     }
 
-    pub fn new_with_description(_devid: u64, name: &str, description: Option<&str>) -> Self {
+    pub fn new_with_description(
+        _devid: u64,
+        name: Option<String>,
+        description: Option<String>,
+    ) -> Self {
         Self {
-            name: name.to_string(),
-            description: description.map(|d| d.to_string()),
+            name: name,
+            description,
         }
     }
 
-    pub fn name(&self) -> &str {
-        &self.name
+    pub fn name(&self) -> Option<&str> {
+        self.name.as_deref()
     }
     pub fn description(&self) -> Option<&str> {
         self.description.as_deref()
@@ -178,10 +182,11 @@ impl Dev for Device {
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, Hash, Eq)]
-#[serde( rename_all = "camelCase", tag = "kind")]
+#[serde(rename_all = "camelCase", tag = "kind")]
 pub struct DevInfo {
     pub dev_sn: u64,
     pub name: Option<String>,
+    pub description: Option<String>,
     pub rloc16: u16,
     pub status: DevStatus,
     pub last_active: DateTime<Utc>,
@@ -206,6 +211,9 @@ impl DevInfo {
     }
     pub fn set_connected_devices(&mut self, connected_devices: Vec<DevicesConnected>) {
         self.connected_devices = connected_devices;
+    }
+    pub fn description(&self) -> Option<&str> {
+        self.description.as_deref()
     }
 }
 

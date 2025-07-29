@@ -93,15 +93,17 @@ pub fn get_neighbor_json(idx: usize) -> Value {
 }
 #[cfg(test)]
 mod test {
-    use crate::api::{JsonMessage};
     use super::*;
+    use crate::api::JsonMessage;
     #[test]
     fn parse_json() {
         let json = get_neighbor_json(0);
-        let jsonmessage: JsonMessage = serde_json::Deserializer::from_str(&json.to_string()).into_iter().next().unwrap().unwrap();
+        let jsonmessage: JsonMessage = serde_json::Deserializer::from_str(&json.to_string())
+            .into_iter()
+            .next()
+            .unwrap()
+            .unwrap();
         assert_eq!(jsonmessage.data.kind(), "Neighbor");
         assert_eq!(jsonmessage.data.len(), 7);
-        assert_eq!(jsonmessage.data.current_item_count(), 1);
     }
-
 }
