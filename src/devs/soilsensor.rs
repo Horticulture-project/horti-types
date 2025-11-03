@@ -130,6 +130,9 @@ impl Dev for SoilSensor {
     fn status(&self) -> crate::devs::hb::DevStatus {
         self.status
     }
+    fn has_sensors(&self) -> bool {
+        true
+    }
 }
 #[cfg(test)]
 mod tests {

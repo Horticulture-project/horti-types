@@ -1,4 +1,3 @@
-
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
@@ -18,7 +17,16 @@ pub struct TeLys {
 }
 
 impl TeLys {
-    pub fn new(device_sn: u64, name: Option<String>, uptime: Option<u32>, last_active: DateTime<Utc>, fwver: Option<u32>, fwver_name: Option<String>, status: crate::devs::hb::DevStatus, battery: Option<f32>) -> Self {
+    pub fn new(
+        device_sn: u64,
+        name: Option<String>,
+        uptime: Option<u32>,
+        last_active: DateTime<Utc>,
+        fwver: Option<u32>,
+        fwver_name: Option<String>,
+        status: crate::devs::hb::DevStatus,
+        battery: Option<f32>,
+    ) -> Self {
         Self {
             name,
             device_sn,
@@ -31,16 +39,15 @@ impl TeLys {
         }
     }
 
-pub fn set_battery(&mut self, battery: Option<f32>) {
+    pub fn set_battery(&mut self, battery: Option<f32>) {
         self.battery = battery;
     }
     pub fn uptime(&self) -> Option<Duration> {
         Some(Duration::from_secs(self.uptime? as u64))
     }
-pub fn battery(&self) -> Option<f32> {
+    pub fn battery(&self) -> Option<f32> {
         self.battery
     }
-
 }
 impl super::Dev for TeLys {
     fn name(&self) -> Option<&str> {

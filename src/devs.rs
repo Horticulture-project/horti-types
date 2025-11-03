@@ -43,6 +43,9 @@ pub trait Dev {
     fn status(&self) -> crate::devs::hb::DevStatus {
         crate::devs::hb::DevStatus::Unknown(0)
     }
+    fn has_sensors(&self) -> bool {
+        false
+    }
 }
 pub trait Battery {
     fn battery(&self) -> Option<f32> {

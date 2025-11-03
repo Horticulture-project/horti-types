@@ -106,10 +106,13 @@ impl Neighbor {
     }
 }
 pub fn neighbors_from_payload(payload: &[u8]) -> Result<Vec<Neighbor>, &str> {
-    if payload.len() % size_of::<NeighborDataZephyr>() !=0 {
-        return Err("Invalid package length for Neighbordata")
+    if payload.len() % size_of::<NeighborDataZephyr>() != 0 {
+        return Err("Invalid package length for Neighbordata");
     }
-    let ret = payload.chunks(size_of::<NeighborDataZephyr>()).map(|n|Neighbor::from_payload(n).ok_or("Unable to parse Neighbor from package")).collect::<Result<Vec<_>, _>>()?;
+    let ret = payload
+        .chunks(size_of::<NeighborDataZephyr>())
+        .map(|n| Neighbor::from_payload(n).ok_or("Unable to parse Neighbor from package"))
+        .collect::<Result<Vec<_>, _>>()?;
     Ok(ret)
 }
 

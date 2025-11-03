@@ -50,7 +50,6 @@ pub enum ItemTypes {
     HeartBeat(crate::devs::hb::HeartBeat),
     NameChange(crate::devs::NameChange),
     DescriptionChange(crate::devs::DescriptionChange), // remove
-    
 }
 impl ItemTypes {
     pub fn len(&self) -> usize {

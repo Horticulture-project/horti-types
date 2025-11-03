@@ -65,14 +65,14 @@ pub enum MeasurementType {
     MagnY = 9,
     MagnZ = 10,
     MagnXYZ = 11,
-    
+
     // Temperature and environmental sensors
     DieTemp = 12,
     AmbientTemperature = 13,
     Pressure = 14,
     Proximity = 15,
     Humidity = 16,
-    
+
     // Light sensors
     IlluminanceVisible = 17,
     IlluminanceInfraRed = 18,
@@ -80,33 +80,33 @@ pub enum MeasurementType {
     IlluminanceGreen = 20,
     IlluminanceBlue = 21,
     Altitude = 22,
-    
+
     // Particle matter sensors
     PM1_0 = 23,
     PM2_5 = 24,
     PM10 = 25,
     Distance = 26,
-    
+
     // Gas sensors
     Co2Level = 27,
     O2Level = 28,
     VocLevel = 29,
     GasSensorResistance = 30,
-    
+
     // Electrical measurements
     Voltage = 31,
     ShuntVoltage = 32,
     Current = 33,
     Power = 34,
     Resistance = 35,
-    
+
     // Motion and position
     Rotation = 36,
     PositionDeltaX = 37,
     PositionDeltaY = 38,
     PositionDeltaZ = 39,
     RPM = 40,
-    
+
     // Battery gauge measurements
     GaugeVoltage = 41,
     GaugeAvgCurrent = 42,
@@ -126,7 +126,7 @@ pub enum MeasurementType {
     GaugeDesignVoltage = 56,
     GaugeDesiredVoltage = 57,
     GaugeDesiredChargingCurrent = 58,
-    
+
     // Custom sensor channels
     SensorChanF1_415 = 59,
     SensorChanF2_445 = 60,
@@ -139,14 +139,14 @@ pub enum MeasurementType {
     SensorChanNir = 67,
     PhSensor = 68,
     Tds = 69,
-    
+
     // Special channels
     All = 70,
-    
+
     // Legacy or other types
     DoorlockLogs = 100,
     UptimeCounter = 101,
-    
+
     // Fallback for unknown types
     Other(u8),
 }
@@ -380,8 +380,12 @@ impl fmt::Display for MeasurementType {
             MeasurementType::GaugeTemperature => write!(f, "GaugeTemperature"),
             MeasurementType::GaugeStateOfCharge => write!(f, "GaugeStateOfCharge"),
             MeasurementType::GaugeFullChargeCapacity => write!(f, "GaugeFullChargeCapacity"),
-            MeasurementType::GaugeRemainingChargeCapacity => write!(f, "GaugeRemainingChargeCapacity"),
-            MeasurementType::GaugeNominalAvailableCapacity => write!(f, "GaugeNominalAvailableCapacity"),
+            MeasurementType::GaugeRemainingChargeCapacity => {
+                write!(f, "GaugeRemainingChargeCapacity")
+            }
+            MeasurementType::GaugeNominalAvailableCapacity => {
+                write!(f, "GaugeNominalAvailableCapacity")
+            }
             MeasurementType::GaugeFullAvailableCapacity => write!(f, "GaugeFullAvailableCapacity"),
             MeasurementType::GaugeAvgPower => write!(f, "GaugeAvgPower"),
             MeasurementType::GaugeStateOfHealth => write!(f, "GaugeStateOfHealth"),
@@ -390,7 +394,9 @@ impl fmt::Display for MeasurementType {
             MeasurementType::GaugeCycleCount => write!(f, "GaugeCycleCount"),
             MeasurementType::GaugeDesignVoltage => write!(f, "GaugeDesignVoltage"),
             MeasurementType::GaugeDesiredVoltage => write!(f, "GaugeDesiredVoltage"),
-            MeasurementType::GaugeDesiredChargingCurrent => write!(f, "GaugeDesiredChargingCurrent"),
+            MeasurementType::GaugeDesiredChargingCurrent => {
+                write!(f, "GaugeDesiredChargingCurrent")
+            }
             MeasurementType::SensorChanF1_415 => write!(f, "SensorChanF1_415"),
             MeasurementType::SensorChanF2_445 => write!(f, "SensorChanF2_445"),
             MeasurementType::SensorChanF3_480 => write!(f, "SensorChanF3_480"),

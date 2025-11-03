@@ -2,6 +2,7 @@ pub mod api;
 pub mod api_json;
 pub mod devices_connected;
 pub mod devs;
+pub mod joiner;
 pub mod measurement;
 pub mod neighbors;
 pub mod otnet;
