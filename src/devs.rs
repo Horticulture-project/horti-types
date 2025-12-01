@@ -218,6 +218,22 @@ impl DevInfo {
     pub fn description(&self) -> Option<&str> {
         self.description.as_deref()
     }
+     pub fn unknown_device(rloc: i32) -> Self {
+        let rloc = rloc as u16;
+        Self {
+            dev_sn: rloc as u64,
+            name: Some(format!("{:04x}", rloc)),
+            description: Some("No status".to_string()),
+            rloc16: rloc,
+            status: DevStatus::Offline,
+            last_active: Utc::now(),
+            dev_type: DevType::Unknown(255),
+            fwver: None,
+            fwver_name: None,
+            uptime: None,
+            connected_devices: vec![],
+        }
+    }
 }
 
 impl Dev for DevInfo {
